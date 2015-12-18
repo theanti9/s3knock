@@ -10,7 +10,7 @@ python s3knock.py wordlist term position
 Example: python s3knock.py wordlist.txt tumblr 1
 """
 
-SEPARATORS = ["", "-", "."] 
+SEPARATORS = ["", "-", ".","_"] 
 
 class bcolors:
     public = '\033[92m'
