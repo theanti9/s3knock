@@ -10,6 +10,8 @@ python s3knock.py wordlist term position
 Example: python s3knock.py wordlist.txt tumblr 1
 """
 
+SEPARATORS = ["", "-", "."] 
+
 class bcolors:
     public = '\033[92m'
     exists = '\033[93m'
@@ -21,43 +23,48 @@ discovered = []
 def main(wordlist, base, position):
     with open(wordlist) as wordlist_file:
         lines = [line.rstrip('\n') for line in wordlist_file]
-    
+    print "Starting search..."
     for line in lines:
-        if position == 1:
-            site = "http://%s%s.s3.amazonaws.com/" %  (base, line)
-        else:
-            site = "https://%s%s.s3.amazonaws.com/" % (line, base)
-    
-        hdr1 = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
-            'Accept-Encoding': 'none',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'Connection': 'keep-alive'}
-        hdr2 = {'User-Agent': 'Mozilla/5.0 AppleWebKit/537.11 Chrome/23.0.1271.64 Safari/537.16',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Charset': 'utf-8;q=0.7,*;q=0.3',
-            'Accept-Encoding': 'none',
-            'Accept-Language': 'en-US,en;q=0.8',
-            'Connection': 'keep-alive'}
-    
-    
-        req = urllib2.Request(site, headers=random.choice([hdr1, hdr2]))
-    
-        try:
-            page = urllib2.urlopen(req)
-            xml = e.fp.read()
-            print bcolors.public + '[*] found : ' + site + " Public! " + bcolors.stop
-            discovered.append(site)
-        except urllib2.HTTPError, e:
-            xml = e.fp.read()
-            soup = BeautifulSoup(xml, features='xml')
-            for q in soup.find_all('Error'):
-                if q.find('Code').text != 'NoSuchBucket':
-                    print bcolors.exists + '[*] found : ' + site + " " + q.find('Code').text + bcolors.stop
-        except urllib2.URLError, e:
-            print 'INFO: Invalid domain format. No DNS resolution.'
-    
+        for sep in SEPARATORS:
+            if position == 1:
+                site = "http://%s%s%s.s3.amazonaws.com/" %  (base, sep, line if line[-1] != "." else line[-1])
+            else:
+                site = "https://%s%s%s.s3.amazonaws.com/" % (line, sep, base)
+            
+            sys.stdout.write("\033[K")
+            print "Testing: %s" % site
+            sys.stdout.write("\033[F")
+            
+            hdr1 = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+                'Accept-Encoding': 'none',
+                'Accept-Language': 'en-US,en;q=0.8',
+                'Connection': 'keep-alive'}
+            hdr2 = {'User-Agent': 'Mozilla/5.0 AppleWebKit/537.11 Chrome/23.0.1271.64 Safari/537.16',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Charset': 'utf-8;q=0.7,*;q=0.3',
+                'Accept-Encoding': 'none',
+                'Accept-Language': 'en-US,en;q=0.8',
+                'Connection': 'keep-alive'}
+        
+        
+            req = urllib2.Request(site, headers=random.choice([hdr1, hdr2]))
+        
+            try:
+                page = urllib2.urlopen(req)
+                xml = e.fp.read()
+                print bcolors.public + '[*] found : ' + site + " Public! " + bcolors.stop
+                discovered.append(site)
+            except urllib2.HTTPError, e:
+                xml = e.fp.read()
+                soup = BeautifulSoup(xml, features='xml')
+                for q in soup.find_all('Error'):
+                    if q.find('Code').text != 'NoSuchBucket':
+                        print bcolors.exists + '[*] found : ' + site + " " + q.find('Code').text + bcolors.stop
+            except urllib2.URLError, e:
+                print 'INFO: Invalid domain format. No DNS resolution for site %s' % site
+        
     print_summary()
     
 def print_summary():
