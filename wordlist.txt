@@ -1,3 +1,10 @@
+com
+net
+org
+edu
+co
+li
+io
 mail
 www
 ns2
