@@ -47,7 +47,6 @@ def main(wordlist, base, position):
         try:
             page = urllib2.urlopen(req)
             xml = e.fp.read()
-            # soup = BeautifulSoup(xml, features='xml')
             print bcolors.public + '[*] found : ' + site + " Public! " + bcolors.stop
             discovered.append(site)
         except urllib2.HTTPError, e:
