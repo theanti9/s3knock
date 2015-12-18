@@ -6,4 +6,4 @@ Example: python s3knock.py wordlist.txt tumblr 1
 
 Position options are 1 or 2, where 1 is term[wordlist] and 2 is [wordlist]term 
 
-Requirements: python , beautifulsoup4 , urllib2, cookielib, random, sys
+Requirements: python, beautifulsoup4, lxml, urllib2, cookielib, random, sys
